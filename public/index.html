@@ -1,0 +1,121 @@
+<html ang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <title>Express IO Chat</title>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+       
+
+        
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        
+        
+        <script>
+            const socket = io()
+            let isNickSet = false
+            
+            socket.on('chat', function (data) {
+                $('textarea').val($('textarea').val()+data+'\n')
+            });
+    
+            
+            socket.on('userlist', (data)=>{
+                console.log("client : userlist event : data => ", data)
+                $('#activeuser').empty()
+                data.map((item)=>{
+                    $('#activeuser').append(`nickname: <strong>${item}<strong><br/>`)
+                })
+                let total = data.length;
+                document.getElementById('listu').innerHTML= total
+                $('b').val(total);
+            })
+            
+            $(function() {
+                
+                $('#nick').on('click', function(event) {
+                    event.preventDefault() 
+                    socket.emit('nick', $('#nickText').val());
+                    $('#nick').hide()
+                    isNickSet = true
+                });
+
+                
+                $('#chat').on('click', function(event) {
+                    event.preventDefault()
+                    if(isNickSet){
+                        socket.emit('chat', {
+                             message:$('#chatText').val()
+                        });
+                    }
+                    $('#chatText').val('')
+                });
+            });
+
+        </script>
+
+    </head>
+    <body>
+    <div class="container">
+    <div class="row">
+       
+        <div class="col-md-6"> 
+        <div class="panel">
+        <div class="panel-body">
+            <center>
+                <h5></h5>
+                <h5>Express IO Chat App</h5>
+            </center>
+             <div class="w3-container w3-red">
+                <div class="panel-body">
+                    <form >
+                        <div class="form-group">
+                            <p>
+                                <input id="nickText" type="text" style="padding: 5px; border: 1px solid rgb(161, 124, 86);" />
+                                <button id="nick" style="padding: 5px; background-color: rgb(84, 165, 175)">Set Nickname</button>
+                            </p>
+                            <textarea style="font-size: 12px; height:300px; width:100%; border: 1px solid rgb(219, 16, 219);"></textarea>
+                            <hr />
+                            <p>
+                                <input id="chatText" type="text" style="padding: 5px; width:100%;border: 2px solid green;" />
+                                <button id="chat" style="padding: 5px; color: rgb(30, 163, 112); background-color: rgb(71, 23, 23)">Send Chat Message</button>
+                            </p>
+                            
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>                              
+        </div>
+        <div class="col-md-3"> 
+        <div class="panel">
+        <div class="panel-body">
+            
+            <form >
+                <div class="form-group">
+                    <h5></h5>
+                    <h5>active users: <b id="listu"></b></h5>
+                    <p id="activeuser" style="height:400px;width:100%;border: 1px solid blue;">  
+                        
+                    </p>
+                </div>
+            </form>
+            
+        </div>
+        </div>                              
+        </div>
+    </div>
+    </div>
+    <script>
+        
+        var nickname = prompt("Please enter your nickname : ")
+        console.log("nickname : ", nickname)
+        $('#nickText').val(nickname)
+        
+    </script>
+    </body>
+</html>
